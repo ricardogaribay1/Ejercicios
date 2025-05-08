@@ -24,13 +24,13 @@ app.post('/operaciones', (req, res) => {
 });
 
 // RUTA 2: GET /tipo/:variable
-app.get('/tipo/:variable', (req, res) => {
-    const variable = req.params.variable; // Obtiene el valor enviado por la URL
+app.post('/tipo', (req, res) => {
+    const { variable } = req.body; // Extrae 'variable' del cuerpo de la solicitud
 
     let tipo;
     if (!isNaN(variable)) {
         tipo = variable.includes('.') ? 'number (decimal)' : 'number (entero)';
-    } else if (variable.toLowerCase() === 'true' || variable.toLowerCase() === 'false') {
+    } else if (String(variable).toLowerCase() === 'true' || String(variable).toLowerCase() === 'false') {
         tipo = 'boolean';
     } else {
         tipo = 'string';
@@ -38,6 +38,7 @@ app.get('/tipo/:variable', (req, res) => {
 
     res.send(`El tipo de la variable es: ${tipo}`);
 });
+
 
 // RUTA 3: POST /concatenar
 app.post('/concatenar', (req, res) => {
