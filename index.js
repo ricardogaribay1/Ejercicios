@@ -23,9 +23,9 @@ app.post('/operaciones', (req, res) => {
     res.json(resultado); // Devuelve los resultados en formato JSON
 });
 
-// RUTA 2: GET /tipo/
-app.post('/tipo', (req, res) => {
-    const { variable } = req.body; // Extrae 'variable' del cuerpo de la solicitud
+// RUTA 2: GET /tipo?variable=valor
+app.get('/tipo', (req, res) => {
+    const variable = req.query.variable; // Extrae 'variable' desde la query string
 
     let tipo;
     if (!isNaN(variable)) {
@@ -38,7 +38,6 @@ app.post('/tipo', (req, res) => {
 
     res.send(`El tipo de la variable es: ${tipo}`);
 });
-
 
 // RUTA 3: POST /concatenar
 app.post('/concatenar', (req, res) => {
@@ -73,4 +72,3 @@ app.post('/sumar-arreglo', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
-
