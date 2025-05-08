@@ -47,8 +47,8 @@ router.post('/tipo-joni', (req, res) => {
         });
 });
 
-router.post('/tipo', (req, res) => {
-    const { variable } = req.body; // Extrae 'variable' del cuerpo de la solicitud
+app.get('/tipo', (req, res) => {
+    const variable = req.query.variable; // Extrae 'variable' desde la query string
 
     let tipo;
     if (!isNaN(variable)) {
