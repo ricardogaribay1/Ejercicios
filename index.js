@@ -23,7 +23,7 @@ app.post('/operaciones', (req, res) => {
     res.json(resultado); // Devuelve los resultados en formato JSON
 });
 
-// RUTA 2: GET /tipo/:variable
+// RUTA 2: GET /tipo/
 app.post('/tipo', (req, res) => {
     const { variable } = req.body; // Extrae 'variable' del cuerpo de la solicitud
 
