@@ -1,104 +1,89 @@
-const express = require('express');
-const router = express();              // Crea una instancia de la app Express
-const operaciones = require('../controllers/operaciones');
+const express = require('express'); // Importa el módulo de Express
+const router = express.Router();    // Crea un objeto Router para definir rutas de forma modular
+const operaciones = require('../controllers/operaciones'); // Importa el archivo de operaciones que contiene funciones reutilizables
 
 // RUTA 1: POST /operaciones
-router.post('/operaciones', (req, res) => {
-    try{
-    const { x, y } = req.body; // Extrae x e y del cuerpo (body) de la petición
+router.post('/operaciones', (req, res) => { // Define una ruta POST en /operaciones
+    try {
+        const { x, y } = req.body; // Extrae x e y del cuerpo de la solicitud JSON
 
-    if (typeof x !== 'number' || typeof y !== 'number') {
-        return res.status(400).send('x e y deben ser números'); // Validación
-    }
-
-    const resultado = operaciones.operaciones(x, y);
-
-    res.json(resultado); // Devuelve los resultados en formato JSON
-    }catch(error){
-        console.log(error);
-        res.status(500).json("ocurrio un error en la ruta operaciones")
-    }
-});
-
-// RUTA 2: GET /tipo/
-router.post('/tipo-joni', (req, res) => {
-    const { variable } = req.body; // Extrae 'variable' del cuerpo de la solicitud
-
-    let tipo;
-    if (!isNaN(variable)) {
-        tipo = 'number';
-        if(typeof variable === 'string'){
-            tipo = variable.includes('.') ? 'number (decimal)' : 'number (entero)';
-        }else{
-            if(Number.isFinite(variable)){
-                tipo = ' flotante'
-            }
+        // Verifica que x e y sean números
+        if (typeof x !== 'number' || typeof y !== 'number') {
+            return res.status(400).json({ // Si no son números, responde con error 400 (Bad Request)
+                status: 400,
+                message: 'x e y deben ser números'
+            });
         }
-    } else if (String(variable).toLowerCase() === 'true' || String(variable).toLowerCase() === 'false') {
-        tipo = 'boolean';
-    } else {
-        tipo = 'string';
-    }
 
-    res.status(200).json(
-        {
-            status:200,
-            message:`El tipo de la variable es: ${tipo}`
+        const resultado = operaciones.operacionesMatematicas(x, y); // Llama a la función importada para realizar operaciones
+
+        res.status(200).json({ // Devuelve un estado 200 (OK) con los resultados
+            status: 200,
+            message: 'Operaciones realizadas correctamente',
+            data: resultado
         });
+    } catch (error) {
+        console.log(error); // Si ocurre un error lo muestra en consola
+        res.status(500).json({ // Devuelve un error 500 (Error Interno del Servidor)
+            status: 500,
+            message: 'Ocurrió un error en la ruta /operaciones'
+        });
+    }
 });
 
-app.get('/tipo', (req, res) => {
-    const variable = req.query.variable; // Extrae 'variable' desde la query string
+// RUTA 2: GET /tipo
+router.get('/tipo', (req, res) => { // Define una ruta GET en /tipo
+    let variable = req.query.variable; // Obtiene el parámetro 'variable' del query string
+    variable = String(variable); // Convierte cualquier entrada a string para analizarla correctamente
 
-    let tipo;
-    if (!isNaN(variable)) {
-        tipo = variable.includes('.') ? 'number (decimal)' : 'number (entero)';
-    } else if (String(variable).toLowerCase() === 'true' || String(variable).toLowerCase() === 'false') {
-        tipo = 'boolean';
-    } else {
-        tipo = 'string';
-    }
+    const tipo = operaciones.detectarTipo(variable); // Llama a la función que detecta el tipo de la variable
 
-    res.send(`El tipo de la variable es: ${tipo}`);
+    res.status(200).json({ // Responde con el tipo de la variable
+        status: 200,
+        message: `El tipo de la variable es: ${tipo}`
+    });
 });
 
 // RUTA 3: POST /concatenar
-router.post('/concatenar', (req, res) => {
-    const { cadena1, cadena2 } = req.body; // Extrae las cadenas del body
+router.post('/concatenar', (req, res) => { // Define una ruta POST en /concatenar
+    const { cadena1, cadena2 } = req.body; // Extrae cadena1 y cadena2 del body
 
+    // Verifica que ambas sean cadenas
     if (typeof cadena1 !== 'string' || typeof cadena2 !== 'string') {
-        return res.status(400).send('Ambas variables deben ser cadenas');
+        return res.status(400).json({ // Si no lo son, responde con error 400
+            status: 400,
+            message: 'Ambas variables deben ser cadenas'
+        });
     }
 
-    res.send(cadena1 + cadena2); // Devuelve las cadenas unidas
+    const resultado = operaciones.concatenarCadenas(cadena1, cadena2); // Llama a la función que concatena las cadenas
+
+    res.status(200).json({ // Devuelve el resultado de la concatenación
+        status: 200,
+        message: 'Cadenas concatenadas correctamente',
+        data: resultado
+    });
 });
 
 // RUTA 4: POST /sumar-arreglo
-router.post('/sumar-arreglo', (req, res) => {
-    const { numeros } = req.body; // Extrae el arreglo del body
+router.post('/sumar-arreglo', (req, res) => { // Define una ruta POST en /sumar-arreglo
+    const { numeros } = req.body; // Extrae el arreglo 'numeros' del body
 
+    // Verifica que sea un arreglo
     if (!Array.isArray(numeros)) {
-        return res.status(400).send('Debes enviar un arreglo de números');
+        return res.status(400).json({ // Si no es un arreglo, responde con error 400
+            status: 400,
+            message: 'Debes enviar un arreglo de números'
+        });
     }
 
-    const resultado = [];
+    const resultado = operaciones.sumarArregloCircular(numeros); // Llama a la función que suma cada elemento con el siguiente
 
-    for (let i = 0; i < numeros.length; i++) {
-        let suma = numeros[i] + numeros[(i + 1) % numeros.length]; // Suma con el siguiente (y el último con el primero)
-        resultado.push(suma);
-    }
-
-    res.json(resultado); // Devuelve el nuevo arreglo
+    res.status(200).json({ // Devuelve el arreglo con los resultados
+        status: 200,
+        message: 'Suma circular realizada correctamente',
+        data: resultado
+    });
 });
 
-/*
-rutas: for, while, if usando arreglos
-ruta1 Post(for):
-Crear un arreglo de cadenas(definidas por el usuario atraves de una ruta post), imprime en consola, cada elemento con un for y devuelve al usuario un exito
-ruta2 get(while)
-Crear una variable le vas a sumar 2 hasta que llegue a 100 , la variable inicial sera una que defina el usuario a traves de get y devuelve al usuario cuantas veces se sumo 2
-ruta3:
-Crear ruta para distinguir tipo de dato con un swicth
-*/ 
-
-module.exports = router;
+module.exports = router; // Exporta el router para que pueda ser usado en otros archivos
